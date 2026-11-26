@@ -1,2 +1,39 @@
+# Python
 __pycache__/
 *.py[cod]
+.venv/
+.pytest_cache/
+.mypy_cache/
+
+# Local configuration (test and production templates are tracked)
+.env.local
+.env.dev
+
+# Local databases and SQLite sidecars
+*.sqlite
+*.sqlite3
+*.db
+*.sqlite-journal
+*.sqlite3-journal
+*.db-journal
+*.sqlite-wal
+*.sqlite3-wal
+*.db-wal
+*.sqlite-shm
+*.sqlite3-shm
+*.db-shm
+
+# Operating system
+.DS_Store
+
+.env.*.local
+.env-*
+
+# Runtime application data
+/data/
+
+# Generated reports contain health data
+/reports/
+
+# Release artifacts
+/build/
