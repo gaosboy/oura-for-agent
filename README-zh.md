@@ -18,7 +18,13 @@ mkdir -p ~/.codex/skills && curl -fL https://github.com/gaosboy/oura-for-agent/r
 
 ### 升级
 
-首次安装命令使用 `unzip -n`，不会更新已有文件。升级前请备份已安装的 Skill 目录，包括其中的私有 `.env` 文件以及可能存在的数据和报告；保留数据目录和系统密钥库密钥，尤其是使用自定义数据路径时。从 [GitHub Releases](https://github.com/gaosboy/oura-for-agent/releases) 下载新版 ZIP，替换已安装的 Skill 目录，恢复私有配置并重新运行初始化。验证升级成功前保留备份。
+从 [GitHub Releases](https://github.com/gaosboy/oura-for-agent/releases) 下载新版 ZIP，在本仓库的克隆目录中运行升级工具（将路径替换为下载的 ZIP）：
+
+```sh
+python3 ops/skill/upgrade.py /path/to/data-from-oura-NEW_VERSION.zip
+```
+
+工具会先在已安装 Skill 目录旁备份整个目录，再更新发布文件，保留私有配置和本地文件。工具会显示备份路径；验证升级成功前请保留备份。外部数据目录和系统密钥库密钥不会被移动或删除。如果使用 Claude Code、Hermes 或 OpenClaw，通过 `--skill-dir` 指定已安装的 `data-from-oura` 目录。升级后重启智能体；运行器会在需要时初始化依赖。升级失败时，请先从显示的备份目录恢复，再重试。
 
 ## 使用 Data from Oura
 

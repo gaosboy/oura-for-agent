@@ -18,7 +18,13 @@ For Claude Code, Hermes, or OpenClaw, replace both instances of `~/.codex/skills
 
 ### Upgrade
 
-The first-install command uses `unzip -n` and does not update existing files. Before upgrading, back up the installed Skill directory, including private `.env` files and any data or reports it contains. Preserve the data directory and system keyring keys, especially if you configured a custom data path. Download the new ZIP from [GitHub Releases](https://github.com/gaosboy/oura-for-agent/releases), replace the installed Skill directory, restore the private configuration, and rerun setup. Keep the backup until you have verified the upgrade.
+Download the new ZIP from [GitHub Releases](https://github.com/gaosboy/oura-for-agent/releases), then run the upgrade helper from a clone of this repository (replace the ZIP path):
+
+```sh
+python3 ops/skill/upgrade.py /path/to/data-from-oura-NEW_VERSION.zip
+```
+
+The helper backs up the complete installed Skill directory next to it, then updates the release files while preserving private configuration and local files. It prints the backup path; keep that backup until you verify the upgrade. It does not move or delete external data directories or system keyring keys. For Claude Code, Hermes, or OpenClaw, pass `--skill-dir` followed by the installed `data-from-oura` path. Restart the agent after upgrading; the runner initializes dependencies when needed. If an upgrade fails, restore the printed backup directory before retrying.
 
 ## Use Data from Oura
 
