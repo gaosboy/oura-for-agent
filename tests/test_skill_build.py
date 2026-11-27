@@ -8,7 +8,7 @@ import unittest
 import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
-BUILD = ROOT / 'scripts' / 'build_skill.py'
+BUILD = ROOT / 'ops' / 'skill' / 'build_skill.py'
 
 
 class SkillBuildTests(unittest.TestCase):
@@ -16,7 +16,7 @@ class SkillBuildTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             cmd = [sys.executable, str(BUILD), '--output', tmp]
             subprocess.run(cmd, check=True, capture_output=True, text=True)
-            version = json.loads((ROOT / 'skill_package' / 'build.json').read_text())['version']
+            version = json.loads((ROOT / 'ops' / 'skill' / 'build.json').read_text())['version']
             archive = Path(tmp) / f'data-from-oura-{version}.zip'
             with zipfile.ZipFile(archive) as z:
                 names = z.namelist()

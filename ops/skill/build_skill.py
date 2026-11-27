@@ -9,8 +9,8 @@ import sys
 import tempfile
 import zipfile
 
-ROOT = Path(__file__).resolve().parents[1]
-CONFIG = ROOT / 'skill_package' / 'build.json'
+ROOT = Path(__file__).resolve().parents[2]
+CONFIG = ROOT / 'ops' / 'skill' / 'build.json'
 
 
 def main():
@@ -52,8 +52,8 @@ def main():
                 target.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copy2(source, target)
         shutil.copy2(ROOT / 'requirements.txt', stage)
-        shutil.copy2(ROOT / 'skill_package' / 'SKILL.md', stage)
-        shutil.copytree(ROOT / 'skill_package' / 'scripts', stage / 'scripts', ignore=shutil.ignore_patterns('__pycache__', '*.pyc'))
+        shutil.copy2(ROOT / 'ops' / 'skill' / 'SKILL.md.template', stage / 'SKILL.md')
+        shutil.copytree(ROOT / 'ops' / 'skill' / 'scripts', stage / 'scripts', ignore=shutil.ignore_patterns('__pycache__', '*.pyc'))
         (stage / 'VERSION').write_text(version + '\n', encoding='utf-8')
         staged_zip = Path(tmp) / archive.name
         with zipfile.ZipFile(staged_zip, 'w', zipfile.ZIP_DEFLATED) as z:

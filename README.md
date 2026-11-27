@@ -102,6 +102,6 @@ python3 -m core.action report activity-trend --start 2026-10-01 --end 2026-10-31
 
 ## 构建及安装 Skill
 
-打包配置独立保存在 `skill_package/build.json`，使用 `MAJOR.MINOR.PATCH` 版本。运行 `python3 scripts/build_skill.py` 在 `build/` 生成 Skill 目录和版本化 ZIP；`python3 scripts/build_skill.py --check-version` 比较配置与该目录中已有的版本，低于已有版本时退出码为 1。同版本重建需要 `--force`，包含本地虚拟环境或配置的输出目录不会被覆盖。发布新版本前修改配置版本。输出位置可通过 `--output PATH` 指定。
+Skill 打包脚本、配置和安装脚本统一存放在 `ops/skill/`。指令模板为 `ops/skill/SKILL.md.template`，构建时输出标准的 `SKILL.md`。打包配置独立保存在 `ops/skill/build.json`，使用 `MAJOR.MINOR.PATCH` 版本。运行 `python3 ops/skill/build_skill.py` 在 `build/` 生成 Skill 目录和版本化 ZIP；`python3 ops/skill/build_skill.py --check-version` 比较配置与该目录中已有的版本，低于已有版本时退出码为 1。同版本重建需要 `--force`，包含本地虚拟环境或配置的输出目录不会被覆盖。发布新版本前修改配置版本。输出位置可通过 `--output PATH` 指定。
 
 将 ZIP 中的 `data-from-oura` 目录完整解压到对应 Skill 目录：Codex 为 `~/.codex/skills/`，Claude Code 为 `~/.claude/skills/`，Hermes 为 `~/.hermes/skills/`，OpenClaw 为 `~/.openclaw/skills/`。重新启动会话以加载。首次使用由 Skill 引导运行 `python3 scripts/setup.py`；登录需要用户在终端交互并完成浏览器授权。升级前备份已安装 Skill 中的 `.env.local`，升级后恢复该文件并重新运行初始化；数据库及系统密钥库也必须保留。不要将本地配置或数据库打包发布。

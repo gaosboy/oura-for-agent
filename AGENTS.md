@@ -28,7 +28,9 @@ Data from Oura 是面向智能体的应用：通过 Oura 开放 API 获取并维
 
 ## 开发与验证
 
-从仓库根目录执行。保留现有 `.env.local`、`.venv/`、`data/`、`reports/`、构建产物及系统密钥库密钥；不为测试清理或重建私人数据。依赖见 `requirements.txt`，需要新环境时使用独立的 `.venv-verify/`。
+Skill 构建资源位于 `ops/skill/`：`build_skill.py` 是构建入口，`build.json` 是版本配置，`SKILL.md.template` 是指令模板，`scripts/` 是分发到 Skill 的安装和运行脚本。运行 `python3 ops/skill/build_skill.py --output /tmp/oura-skill-build` 验证打包；产物中的指令文件仍名为 `SKILL.md`。
+
+从仓库根目录执行。版本库只保存源码、文档、测试、开发工具和非敏感配置模板；私人配置、依赖环境、数据库、报告及构建产物不提交。需要清理项目内的运行状态时，先将其移到仓库外的私有备份目录并校验完整性；保留系统密钥库密钥，不为测试重建或清空私人数据。依赖见 `requirements.txt`，需要新环境时使用独立环境。
 
 ```sh
 python3 -m unittest discover -s tests
