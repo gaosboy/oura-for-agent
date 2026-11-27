@@ -6,17 +6,38 @@
 
 ## 安装 Skill
 
+### 首次安装
+
 在 macOS 或 Linux 上**首次安装到 Codex**，运行以下命令（需要 `curl` 和 `unzip`）：
 
 ```sh
 mkdir -p ~/.codex/skills && curl -fL https://github.com/gaosboy/oura-for-agent/releases/download/v1.0.1/data-from-oura-1.0.1.zip -o /tmp/data-from-oura-1.0.1.zip && unzip -n /tmp/data-from-oura-1.0.1.zip -d ~/.codex/skills
 ```
 
-重启 Codex 会话，然后让它使用 Data from Oura。首次使用时，Skill 会引导完成初始化，包括安装 Python 依赖和创建本地数据库。连接账号需要在终端和浏览器中交互授权；请创建或使用已有 Oura 开发者应用，并将 `http://localhost:8765/callback` 登记为回调地址。
-
 如果使用 Claude Code、Hermes 或 OpenClaw，将命令中两处 `~/.codex/skills` 分别替换为 `~/.claude/skills`、`~/.hermes/skills` 或 `~/.openclaw/skills`。也可以从 [GitHub Releases](https://github.com/gaosboy/oura-for-agent/releases) 下载 ZIP，将其中完整的 `data-from-oura` 目录解压到对应的 Skill 目录。
 
-命令使用 `unzip -n`，不会覆盖已有文件，适合首次安装。升级前请备份已安装 Skill 中的 `.env.local`，保留数据库和系统密钥库密钥；替换 Skill 目录后恢复配置并重新运行初始化。
+### 升级
+
+首次安装命令使用 `unzip -n`，不会更新已有文件。升级前请备份已安装的 Skill 目录，包括其中的私有 `.env` 文件以及可能存在的数据和报告；保留数据目录和系统密钥库密钥，尤其是使用自定义数据路径时。从 [GitHub Releases](https://github.com/gaosboy/oura-for-agent/releases) 下载新版 ZIP，替换已安装的 Skill 目录，恢复私有配置并重新运行初始化。验证升级成功前保留备份。
+
+## 使用 Data from Oura
+
+安装后重启智能体会话。可以直接告诉智能体：“使用 Data from Oura 连接我的账号”、“同步我上个月的睡眠数据”或“生成上个月的运动趋势报告”。首次使用时，智能体会引导完成初始化。初始化需要 Python 3、`venv`、pip，以及用于安装依赖的网络连接。
+
+连接账号时，在 [Oura 开发者平台](https://developer.ouraring.com/applications) 创建或使用已有应用，并将 `http://localhost:8765/callback` 登记为回调地址。在交互式终端和浏览器中完成登录；凭据输入到终端，不要发送到聊天中。登录需要可用的安全系统密钥库。报告使用已同步的数据；增量同步要求每个所选数据类型此前至少成功同步一次。令牌过期后需要重新授权。
+
+也可以从已安装的 Skill 目录直接运行（以下以 Codex 为例）：
+
+```sh
+cd ~/.codex/skills/data-from-oura
+python3 scripts/setup.py
+python3 scripts/run.py --login
+python3 scripts/run.py sync range --start 2026-01-01 --end 2026-01-31 --types daily_sleep
+python3 scripts/run.py read --types daily_sleep --start 2026-01-01 --end 2026-01-31
+python3 scripts/run.py report activity-trend --start 2026-01-01 --end 2026-01-31
+```
+
+初始化和登录也可分开执行；需要时 `scripts/run.py` 会自动运行初始化。请将示例日期换成所需范围，并在生成运动报告前同步 `daily_activity` 和 `workout`。使用 `python3 scripts/run.py --help` 查看完整命令。数据和报告包含个人健康信息，请妥善保管。
 
 ## 设计与平台资料
 

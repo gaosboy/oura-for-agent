@@ -6,17 +6,38 @@ Manage local health data through the Oura API, with a CLI, a Python application 
 
 ## Install the Skill
 
+### First installation
+
 For a first installation in **Codex** on macOS or Linux, run this command (`curl` and `unzip` are required):
 
 ```sh
 mkdir -p ~/.codex/skills && curl -fL https://github.com/gaosboy/oura-for-agent/releases/download/v1.0.1/data-from-oura-1.0.1.zip -o /tmp/data-from-oura-1.0.1.zip && unzip -n /tmp/data-from-oura-1.0.1.zip -d ~/.codex/skills
 ```
 
-Restart your Codex session, then ask it to use Data from Oura. On first use, the Skill guides you through setup, including installing Python dependencies and initializing the local database. To connect an account, authorize interactively in a terminal and browser. Create or use an Oura developer application and register `http://localhost:8765/callback` as its redirect URI.
-
 For Claude Code, Hermes, or OpenClaw, replace both instances of `~/.codex/skills` with `~/.claude/skills`, `~/.hermes/skills`, or `~/.openclaw/skills`, respectively. You can also download the ZIP from [GitHub Releases](https://github.com/gaosboy/oura-for-agent/releases) and extract its complete `data-from-oura` directory into the appropriate Skill directory.
 
-The command uses `unzip -n` and does not overwrite existing files; use it for a first install. Before upgrading, back up the installed Skill's `.env.local`, preserve the databases and system keyring keys, then replace the Skill directory, restore the configuration, and rerun initialization.
+### Upgrade
+
+The first-install command uses `unzip -n` and does not update existing files. Before upgrading, back up the installed Skill directory, including private `.env` files and any data or reports it contains. Preserve the data directory and system keyring keys, especially if you configured a custom data path. Download the new ZIP from [GitHub Releases](https://github.com/gaosboy/oura-for-agent/releases), replace the installed Skill directory, restore the private configuration, and rerun setup. Keep the backup until you have verified the upgrade.
+
+## Use Data from Oura
+
+Restart your agent session after installation. Ask your agent, for example: “Use Data from Oura to connect my account,” “Sync my sleep data for the past month,” or “Create an activity trend report for last month.” The agent will guide you through setup on first use. Python 3 with `venv` and pip, and network access to install dependencies, are required.
+
+To connect an account, create or use an application in the [Oura developer portal](https://developer.ouraring.com/applications) and register `http://localhost:8765/callback` as its redirect URI. Complete login in an interactive terminal and browser; enter credentials in the terminal rather than the chat. A secure system keyring is required. Reports use previously synchronized data; incremental sync requires a prior successful sync for each selected data type. Expired tokens require reauthorization.
+
+You can also run the Skill directly from its installed directory (example for Codex):
+
+```sh
+cd ~/.codex/skills/data-from-oura
+python3 scripts/setup.py
+python3 scripts/run.py --login
+python3 scripts/run.py sync range --start 2026-01-01 --end 2026-01-31 --types daily_sleep
+python3 scripts/run.py read --types daily_sleep --start 2026-01-01 --end 2026-01-31
+python3 scripts/run.py report activity-trend --start 2026-01-01 --end 2026-01-31
+```
+
+Setup and login may also be invoked separately; `scripts/run.py` runs setup automatically when needed. Replace the example dates with the desired range and synchronize `daily_activity` and `workout` before generating an activity report. Use `python3 scripts/run.py --help` for all commands. Data and reports contain personal health information; keep them private.
 
 ## Design and API references
 
