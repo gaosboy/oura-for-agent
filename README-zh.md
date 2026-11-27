@@ -4,6 +4,20 @@
 
 通过 Oura API 维护本地健康数据，提供 CLI、脚本操作和可安装的 Skill。
 
+## 安装 Skill
+
+在 macOS 或 Linux 上**首次安装到 Codex**，运行以下命令（需要 `curl` 和 `unzip`）：
+
+```sh
+mkdir -p ~/.codex/skills && curl -fL https://github.com/gaosboy/oura-for-agent/releases/download/v1.0.1/data-from-oura-1.0.1.zip -o /tmp/data-from-oura-1.0.1.zip && unzip -n /tmp/data-from-oura-1.0.1.zip -d ~/.codex/skills
+```
+
+重启 Codex 会话，然后让它使用 Data from Oura。首次使用时，Skill 会引导完成初始化，包括安装 Python 依赖和创建本地数据库。连接账号需要在终端和浏览器中交互授权；请创建或使用已有 Oura 开发者应用，并将 `http://localhost:8765/callback` 登记为回调地址。
+
+如果使用 Claude Code、Hermes 或 OpenClaw，将命令中两处 `~/.codex/skills` 分别替换为 `~/.claude/skills`、`~/.hermes/skills` 或 `~/.openclaw/skills`。也可以从 [GitHub Releases](https://github.com/gaosboy/oura-for-agent/releases) 下载 ZIP，将其中完整的 `data-from-oura` 目录解压到对应的 Skill 目录。
+
+命令使用 `unzip -n`，不会覆盖已有文件，适合首次安装。升级前请备份已安装 Skill 中的 `.env.local`，保留数据库和系统密钥库密钥；替换 Skill 目录后恢复配置并重新运行初始化。
+
 ## 设计与平台资料
 
 - [设计文档索引](docs/design/README.md)。
@@ -102,8 +116,9 @@ python3 -m core.action report activity-trend --start 2026-10-01 --end 2026-10-31
 
 报告使用当前账号已同步的 `daily_activity` 和 `workout`，不会自动同步。文件保存在数据库目录的同级 `reports/`（例如数据目录为项目内的 `data/` 时，报告位于项目内的 `reports/`），是可离线打开的 HTML；命令返回路径和缓存状态。相同账号、日期和模板默认复用旧文件，数据或模板变化后需使用 `--force`。报告包含个人健康数据，请妥善保管。
 
-## 构建及安装 Skill
+## 构建 Skill
 
 Skill 打包脚本、配置和安装脚本统一存放在 `ops/skill/`。指令模板为 `ops/skill/SKILL.md.template`，构建时输出标准的 `SKILL.md`。打包配置独立保存在 `ops/skill/build.json`，使用 `MAJOR.MINOR.PATCH` 版本。运行 `python3 ops/skill/build_skill.py` 在 `build/` 生成 Skill 目录和版本化 ZIP；`python3 ops/skill/build_skill.py --check-version` 比较配置与该目录中已有的版本，低于已有版本时退出码为 1。同版本重建需要 `--force`，包含本地虚拟环境或配置的输出目录不会被覆盖。发布新版本前修改配置版本。输出位置可通过 `--output PATH` 指定。
 
-将 ZIP 中的 `data-from-oura` 目录完整解压到对应 Skill 目录：Codex 为 `~/.codex/skills/`，Claude Code 为 `~/.claude/skills/`，Hermes 为 `~/.hermes/skills/`，OpenClaw 为 `~/.openclaw/skills/`。重新启动会话以加载。首次使用由 Skill 引导运行 `python3 scripts/setup.py`；登录需要用户在终端交互并完成浏览器授权。升级前备份已安装 Skill 中的 `.env.local`，升级后恢复该文件并重新运行初始化；数据库及系统密钥库也必须保留。不要将本地配置或数据库打包发布。
+
+不要将本地配置或数据库打包发布。

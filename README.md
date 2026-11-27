@@ -4,6 +4,20 @@
 
 Manage local health data through the Oura API, with a CLI, a Python application interface, and an installable Skill.
 
+## Install the Skill
+
+For a first installation in **Codex** on macOS or Linux, run this command (`curl` and `unzip` are required):
+
+```sh
+mkdir -p ~/.codex/skills && curl -fL https://github.com/gaosboy/oura-for-agent/releases/download/v1.0.1/data-from-oura-1.0.1.zip -o /tmp/data-from-oura-1.0.1.zip && unzip -n /tmp/data-from-oura-1.0.1.zip -d ~/.codex/skills
+```
+
+Restart your Codex session, then ask it to use Data from Oura. On first use, the Skill guides you through setup, including installing Python dependencies and initializing the local database. To connect an account, authorize interactively in a terminal and browser. Create or use an Oura developer application and register `http://localhost:8765/callback` as its redirect URI.
+
+For Claude Code, Hermes, or OpenClaw, replace both instances of `~/.codex/skills` with `~/.claude/skills`, `~/.hermes/skills`, or `~/.openclaw/skills`, respectively. You can also download the ZIP from [GitHub Releases](https://github.com/gaosboy/oura-for-agent/releases) and extract its complete `data-from-oura` directory into the appropriate Skill directory.
+
+The command uses `unzip -n` and does not overwrite existing files; use it for a first install. Before upgrading, back up the installed Skill's `.env.local`, preserve the databases and system keyring keys, then replace the Skill directory, restore the configuration, and rerun initialization.
+
 ## Design and API references
 
 - [Design index](docs/design/README.md).
@@ -105,10 +119,11 @@ python3 -m core.action report activity-trend --start 2026-10-01 --end 2026-10-31
 
 Reports use the active account's previously synchronized `daily_activity` and `workout` records; they do not trigger synchronization. Reports are standalone HTML files that work offline, stored in a `reports/` directory alongside the database directory. For example, a project-local `data/` directory produces reports in the project's `reports/` directory. The command returns the path and cache status. Requests for the same account, dates, and template reuse the existing report by default. Use `--force` after data or template changes. Reports contain personal health data; keep them private.
 
-## Build and install the Skill
+## Build the Skill
 
 Skill build scripts, configuration, and installation scripts live in `ops/skill/`. The instruction template is `ops/skill/SKILL.md.template`; the builder outputs it as `SKILL.md`. The separate build configuration, `ops/skill/build.json`, uses `MAJOR.MINOR.PATCH` versions.
 
 Run `python3 ops/skill/build_skill.py` to create a Skill directory and a versioned ZIP in `build/`. Run `python3 ops/skill/build_skill.py --check-version` to compare the configured version with existing local artifacts; it exits with status 1 if the configured version is older. Rebuilding an existing version requires `--force`. The builder will not overwrite an output directory containing a local virtual environment or private configuration. Update the configured version before releasing a new version. Use `--output PATH` to select another output directory.
 
-Extract the complete `data-from-oura` directory from the ZIP into your tool's Skill directory: `~/.codex/skills/` for Codex, `~/.claude/skills/` for Claude Code, `~/.hermes/skills/` for Hermes, or `~/.openclaw/skills/` for OpenClaw. Restart the session to load it. On first use, the Skill guides you through `python3 scripts/setup.py`. Login requires an interactive terminal and browser authorization. Before upgrading, back up the installed Skill's `.env.local`, restore it afterward, and rerun initialization. Preserve the databases and system keyring keys as well. Never include local configuration or databases in a release package.
+
+Never include local configuration or databases in a release package.
