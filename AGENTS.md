@@ -1,36 +1,40 @@
 # Repository Guidelines
 
-## 产品目标与资料
+[English](AGENTS.md) | [简体中文](AGENTS-zh.md)
 
-Data from Oura 是面向智能体的应用：通过 Oura 开放 API 获取并维护用户可访问的健康数据，保存到本地数据库，供分析和调用。目标覆盖所有可用数据类型；实际访问受用户授权、API 能力和平台限制约束。
+Keep `README.md`, `AGENTS.md`, and their corresponding `-zh.md` files synchronized when updating them, so both languages describe the same behavior and engineering requirements.
 
-`docs/` 包含 Oura API 文档；线上文档为 https://cloud.ouraring.com/v2/docs。实现接口时查阅文档，并在需要确认最新平台要求时核对线上文档。应用代码位于 `core/`：`link/oura_v2/` 对接 Oura，`core/account/` 与 `core/record/` 管理业务，`action/operations/` 提供统一操作，`action/cli/` 提供命令行入口；配置位于独立的 `config/`。测试位于 `tests/`。
+## Product goal and references
 
-## 架构与模块组织
+Data from Oura is an application for agents. It retrieves and maintains health data accessible through the Oura API, stores it in local databases, and makes it available for analysis and application calls. The goal is to cover all available data types; actual access depends on user authorization, API capabilities, and platform restrictions.
 
-设计见[文档索引](docs/design/README.md)、[工程方案](docs/design/02-oura-core/project-architecture.md)与[数据库设计](docs/design/02-oura-core/database-schema.md)，实际能力见 [README](README.md)。
+`docs/` contains Oura API documentation. The online reference is https://cloud.ouraring.com/v2/docs. Consult the documentation when implementing interfaces and check the official online reference when current platform requirements need confirmation. Application code lives in `core/`: within that package, `link/oura_v2/` integrates with Oura, `core/account/` and `core/record/` handle domain logic, `action/operations/` exposes shared operations, and `action/cli/` provides the CLI. Configuration is isolated in `config/`. Tests live in `tests/`.
 
-保持职责分离，以下分层可随设计演进，但边界应清晰：
+## Architecture and module organization
 
-- **Link**：封装 Oura API、OAuth 授权和验证、请求、分页、错误及同步协议；隔离平台接口细节。
-- **Core**：围绕独立设计的本地数据模型、持久化和领域逻辑处理与分析数据，不依赖调用入口。
-- **Action**：向脚本、Skill 等调用方式提供可扩展的操作入口；CLI 和 Web 只能调用 `action/operations/`，操作层调用 Core，避免重复业务逻辑。
+Consult the [design index](docs/design/README.md), [engineering design](docs/design/02-oura-core/project-architecture.md), and [database design](docs/design/02-oura-core/database-schema.md). See the [README](README.md) for implemented behavior.
 
-本地模型独立于 Oura 的响应结构；明确记录外部数据与本地模型之间的映射及字段语义，避免静默丢失数据。新增模块时按职责组织代码、测试和资源，并记录依赖方向及目录用途。
+Keep responsibilities separate. These layers may evolve, but their boundaries must remain clear:
 
-## 同步与数据保护
+- **Link** encapsulates the Oura API, OAuth authorization and validation, requests, pagination, errors, and synchronization protocols. It isolates platform details.
+- **Core** handles local data models, persistence, and domain logic for processing and analyzing data, independently of application entry points.
+- **Action** provides reusable operations for scripts, Skills, and other callers. CLI and Web entry points may call only `action/operations/`; the operation layer calls Core. Avoid duplicating domain logic.
 
-设计初始历史数据获取和后续增量更新，处理分页、重复事件、更新、删除、失败重试及同步进度；在平台支持时考虑 webhook。遵守授权范围、用户同意和速率限制，并明确处理令牌过期及撤销。不要在仓库、日志或测试夹具中提交真实健康数据、OAuth 令牌或客户端密钥；使用合成数据、模拟服务和临时目录。数据读取、保存和删除行为应与实际隐私政策一致。
+Design local models independently of Oura response structures. Document mappings between external data and local models, including field semantics, without silently losing data. Organize new code, tests, and resources by responsibility, and document dependency direction and directory purposes.
 
-## 辅助页面
+## Synchronization and data protection
 
-除核心应用外，维护介绍主页、隐私政策、服务条款及平台要求的其他页面。页面内容应准确反映实际数据用途、保存、共享和用户权利；平台要求和法律文本需在发布前核实，避免将占位内容当作最终政策。
+Plan for initial historical imports and incremental updates. Handle pagination, duplicate events, updates, deletions, retries, and synchronization progress; consider webhooks where supported. Respect authorization scopes, user consent, and rate limits. Handle token expiration and revocation explicitly. Never put real health data, OAuth tokens, or client secrets in the repository, logs, or test fixtures. Use synthetic data, mock services, and temporary directories. Actual data access, retention, and deletion must match the privacy policy.
 
-## 开发与验证
+## Supporting pages
 
-Skill 构建资源位于 `ops/skill/`：`build_skill.py` 是构建入口，`build.json` 是版本配置，`SKILL.md.template` 是指令模板，`scripts/` 是分发到 Skill 的安装和运行脚本。运行 `python3 ops/skill/build_skill.py --output /tmp/oura-skill-build` 验证打包；产物中的指令文件仍名为 `SKILL.md`。
+Maintain a product introduction, privacy policy, terms of service, and other platform-required pages alongside the application. Their content must accurately describe data uses, retention, sharing, and user rights. Verify platform requirements and legal text before publication; do not treat placeholder content as final policy.
 
-从仓库根目录执行。版本库只保存源码、文档、测试、开发工具和非敏感配置模板；私人配置、依赖环境、数据库、报告及构建产物不提交。需要清理项目内的运行状态时，先将其移到仓库外的私有备份目录并校验完整性；保留系统密钥库密钥，不为测试重建或清空私人数据。依赖见 `requirements.txt`，需要新环境时使用独立环境。
+## Development and verification
+
+Skill build resources live in `ops/skill/`: `build_skill.py` is the build entry point, `build.json` contains version configuration, `SKILL.md.template` is the instruction template, and `scripts/` contains the installation and runner scripts distributed with the Skill. Run `python3 ops/skill/build_skill.py --output /tmp/oura-skill-build` to verify packaging. The packaged instruction file must still be named `SKILL.md`.
+
+Run commands from the repository root. Version control contains only source code, documentation, tests, development tools, and non-sensitive configuration templates. Do not commit private configuration, dependency environments, databases, reports, or build artifacts. Before cleaning project-local runtime state, move it to a private backup directory outside the repository and verify its integrity. Preserve system keyring keys; never rebuild or clear private data for testing. Dependencies are listed in `requirements.txt`; use a separate environment when a new one is needed.
 
 ```sh
 python3 -m unittest discover -s tests
@@ -38,19 +42,21 @@ python3 -m core.action --help
 python3 -m json.tool docs/openapi-1.43.json > /dev/null
 ```
 
-测试只用合成数据、平台替身和临时目录；真实 Oura 授权或同步须另行取得用户授权。当前未实现令牌自动刷新，平台分页、增量回查和删除边界以使用说明为准。
+Tests use only synthetic data, platform substitutes, and temporary directories. Real Oura authorization or synchronization requires separate user authorization. Automatic token refresh is not implemented. See the usage documentation for pagination, incremental overlap, and deletion limits.
 
-使用 `python3 -m core.action` 初始化认证库；`--login` 可选地授权账号（登录依赖 `pip install -r requirements.txt`）。使用 `python3 scripts/export_openapi.py` 将规范导出到 `docs/oura-api/`；运行 `python3 -m unittest discover -s tests` 验证应用、Skill 构建和导出脚本。修改 API 文档源文件时，应检查 JSON 语法，并在有 OpenAPI 3.1 校验工具时检查语义和引用。保留规范的两空格缩进及既有命名，避免无关的全文件格式化。新增代码时提供相应测试，覆盖映射、授权、同步和错误处理，并在此记录实际安装、运行和测试命令。
+Use `python3 -m core.action` to initialize the authentication database. The optional `--login` flag authorizes an account; login requires dependencies installed with `pip install -r requirements.txt`. Use `python3 scripts/export_openapi.py` to export the specification into `docs/oura-api/`. Run `python3 -m unittest discover -s tests` to verify the application, Skill builder, and export script.
 
-登录会展示授权 URL，倒计时 3 秒尝试打开浏览器，随后允许 60 秒完成授权和账号保存；浏览器未打开时可手动访问该 URL。回调页面收到有效授权后倒计时 3 秒尝试关闭；账号保存成功后回调服务倒计时 5 秒自动关闭，期间保持响应。交互终端支持颜色高亮，重定向或设置 `NO_COLOR` 时使用纯文本。运行 `python3 -m unittest discover -s tests` 验证授权超时、回调持续响应、关闭倒计时、引导交互和颜色兼容及其他回归测试。
+When changing the API specification, check JSON syntax and, when an OpenAPI 3.1 validator is available, validate semantics and references. Preserve the specification's two-space indentation and existing names; avoid unrelated whole-file formatting. Add appropriate tests for new code, covering mappings, authorization, synchronization, and error handling. Record actual installation, execution, and test commands here.
 
-## 提交与评审
+Login displays an authorization URL, waits three seconds before attempting to open the browser, and then allows 60 seconds for authorization and account saving. If the browser does not open, the user can visit the URL manually. After a valid callback, the callback page waits three seconds and tries to close. After the account is saved, the callback server remains responsive during a five-second shutdown countdown. Interactive terminals support colors; redirected output and `NO_COLOR` use plain text. Run `python3 -m unittest discover -s tests` to verify authorization timeouts, callback availability, shutdown countdowns, interactive guidance, color compatibility, and other regressions.
 
-项目已启用 Git 版本管理。除非用户明确要求暂不提交，每个独立、完整的变更（包括代码、文档和配置）都必须在完成相应验证后提交到本地 Git，再结束本次任务；无需为常规本地提交重复征求确认。每完成一个可独立验证的逻辑变更就立即验证并提交，不要等到整个多阶段任务结束；架构设计、计划和文档同样适用。每次工作结束前检查 Git 状态，确保所有未被忽略的本次变更均已提交；如有无法提交的内容，说明原因。提交以逻辑变更为单位，不要求每次保存文件都提交。
+## Commits and reviews
 
-- 开始工作前检查 `git status` 和已有差异，区分本次变更与已有未提交内容。
-- 提交前审查差异和暂存区，明确暂存本次任务涉及的文件或片段；不要将无关的已有变更一并提交，也不要覆盖或丢弃它们。
-- 禁止提交真实健康数据、令牌、密钥、本地数据库和生成的私人报告；环境配置文件仅在确认是无敏感信息的模板时纳入版本管理。
-- 完成后报告提交标识、验证结果和仍未提交的相关内容；若提交受阻，说明原因并保留工作现场。本地提交不代表已推送，推送或发布按用户授权执行。
+The project uses Git. Unless the user explicitly requests otherwise, validate and commit every independent, complete change—including code, documentation, and configuration—to local Git before ending the task. Routine local commits do not require repeated confirmation. Verify and commit each independently verifiable logical change as soon as it is complete, rather than waiting until the end of a multi-stage task. This also applies to architecture designs, plans, and documentation. Before finishing, check Git status and ensure all non-ignored changes made for the task are committed. Explain anything that cannot be committed. Group commits by logical change; a commit is not required for every file save.
 
-提交信息使用简短祈使句，例如 `Add Oura sync client`。拉取请求应说明目的、受影响的数据类型或接口、验证结果及关联问题；涉及页面时附截图，涉及模型或同步行为时说明兼容性和迁移影响。
+- Check `git status` and existing diffs before starting. Distinguish task changes from pre-existing uncommitted work.
+- Review working-tree and staged diffs before committing. Stage only files or hunks belonging to the task. Do not include, overwrite, or discard unrelated existing changes.
+- Never commit real health data, tokens, keys, local databases, or generated private reports. Track environment files only after confirming that they are non-sensitive templates.
+- Report commit IDs, verification results, and any related uncommitted work when finished. If committing is blocked, explain why and preserve the working state. A local commit does not imply a push; push or publish only as authorized by the user.
+
+Use short imperative commit messages, such as `Add Oura sync client`. Pull requests should describe the purpose, affected data types or interfaces, verification results, and related issues. Include screenshots for UI changes. For model or synchronization changes, explain compatibility and migration impacts.
