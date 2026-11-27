@@ -8,6 +8,8 @@ Data from Oura 是面向智能体的应用：通过 Oura 开放 API 获取并维
 
 ## 架构与模块组织
 
+设计见[文档索引](docs/design/README.md)、[工程方案](docs/design/02-oura-core/project-architecture.md)与[数据库设计](docs/design/02-oura-core/database-schema.md)，实际能力见 [README](README.md)。
+
 保持职责分离，以下分层可随设计演进，但边界应清晰：
 
 - **Link**：封装 Oura API、OAuth 授权和验证、请求、分页、错误及同步协议；隔离平台接口细节。
@@ -18,7 +20,7 @@ Data from Oura 是面向智能体的应用：通过 Oura 开放 API 获取并维
 
 ## 同步与数据保护
 
-设计初始历史数据获取和后续增量更新，处理分页、重复事件、更新、删除、失败重试及同步进度；在平台支持时考虑 webhook。遵守授权范围、用户同意和速率限制，并明确处理令牌过期及撤销。不要在仓库、日志或测试夹具中提交真实健康数据、OAuth 令牌或客户端密钥；使用脱敏数据和环境配置。数据读取、保存和删除行为应与实际隐私政策一致。
+设计初始历史数据获取和后续增量更新，处理分页、重复事件、更新、删除、失败重试及同步进度；在平台支持时考虑 webhook。遵守授权范围、用户同意和速率限制，并明确处理令牌过期及撤销。不要在仓库、日志或测试夹具中提交真实健康数据、OAuth 令牌或客户端密钥；使用合成数据、模拟服务和临时目录。数据读取、保存和删除行为应与实际隐私政策一致。
 
 ## 辅助页面
 
@@ -26,7 +28,17 @@ Data from Oura 是面向智能体的应用：通过 Oura 开放 API 获取并维
 
 ## 开发与验证
 
-使用 `python3 -m oura_app.action` 初始化认证库；`--login` 可选地授权账号（登录依赖 `pip install -r requirements.txt`）。使用 `python3 scripts/export_openapi.py` 将规范导出到 `docs/oura-api/`；运行 `python3 -m unittest discover -s tests` 验证导出脚本。修改 API 文档源文件时，应检查 JSON 语法，并在有 OpenAPI 3.1 校验工具时检查语义和引用。保留规范的两空格缩进及既有命名，避免无关的全文件格式化。新增代码时提供相应测试，覆盖映射、授权、同步和错误处理，并在此记录实际安装、运行和测试命令。
+从仓库根目录执行。保留现有 `.env.local`、`.venv/`、`data/`、`reports/`、构建产物及系统密钥库密钥；不为测试清理或重建私人数据。依赖见 `requirements.txt`，需要新环境时使用独立的 `.venv-verify/`。
+
+```sh
+python3 -m unittest discover -s tests
+python3 -m oura_app.action --help
+python3 -m json.tool docs/openapi-1.43.json > /dev/null
+```
+
+测试只用合成数据、平台替身和临时目录；真实 Oura 授权或同步须另行取得用户授权。当前未实现令牌自动刷新，平台分页、增量回查和删除边界以使用说明为准。
+
+使用 `python3 -m oura_app.action` 初始化认证库；`--login` 可选地授权账号（登录依赖 `pip install -r requirements.txt`）。使用 `python3 scripts/export_openapi.py` 将规范导出到 `docs/oura-api/`；运行 `python3 -m unittest discover -s tests` 验证应用、Skill 构建和导出脚本。修改 API 文档源文件时，应检查 JSON 语法，并在有 OpenAPI 3.1 校验工具时检查语义和引用。保留规范的两空格缩进及既有命名，避免无关的全文件格式化。新增代码时提供相应测试，覆盖映射、授权、同步和错误处理，并在此记录实际安装、运行和测试命令。
 
 登录会展示授权 URL，倒计时 3 秒尝试打开浏览器，随后允许 60 秒完成授权和账号保存；浏览器未打开时可手动访问该 URL。回调页面收到有效授权后倒计时 3 秒尝试关闭；账号保存成功后回调服务倒计时 5 秒自动关闭，期间保持响应。交互终端支持颜色高亮，重定向或设置 `NO_COLOR` 时使用纯文本。运行 `python3 -m unittest discover -s tests` 验证授权超时、回调持续响应、关闭倒计时、引导交互和颜色兼容及其他回归测试。
 

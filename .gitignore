@@ -2,6 +2,8 @@
 __pycache__/
 *.py[cod]
 .venv/
+.venv-*/
+*.egg-info/
 .pytest_cache/
 .mypy_cache/
 
@@ -35,5 +37,9 @@ __pycache__/
 # Generated reports contain health data
 /reports/
 
+# Runtime output when explicitly placed in the repository
+/output/
+
 # Release artifacts
 /build/
+/dist/

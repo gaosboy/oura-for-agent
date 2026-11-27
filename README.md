@@ -1,5 +1,13 @@
 # Data from Oura
 
+通过 Oura API 维护本地健康数据，提供 CLI、脚本操作和可安装的 Skill。
+
+## 设计与平台资料
+
+- [设计文档索引](docs/design/README.md)。
+- [Oura OpenAPI 快照](docs/openapi-1.43.json)、[导出文档](docs/oura-api/README.md)。
+- [工程约束](AGENTS.md)。
+
 ## 代码结构
 
 - `oura_app/action/operations/`：统一应用操作；`action/cli/` 负责命令行交互。
@@ -47,7 +55,7 @@ python3 -m oura_app.action --login
 
 运行测试：`python3 -m unittest discover -s tests`。
 
-账号记录库按 `account-<本地账号UUID>.sqlite3` 命名。开发阶段旧版数据库需要清理后重新初始化。
+账号记录库按 `account-<本地账号UUID>.sqlite3` 命名。保留已有数据库、原数据目录和系统密钥库密钥，不自动清理或重建私人数据。
 
 ## 同步和读取数据
 
