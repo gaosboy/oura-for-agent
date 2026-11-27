@@ -18,13 +18,13 @@ mkdir -p ~/.codex/skills && curl -fL https://github.com/gaosboy/oura-for-agent/r
 
 ### 升级
 
-在本仓库根目录运行以下命令，下载 v1.0.1 发布包并升级 Codex 中的 Skill（需要 Python 3 和 `curl`）：
+在任意目录运行以下命令，将 Codex 中的 Skill 升级到 v1.0.1。命令会从 GitHub 下载升级工具和发布包（需要 Python 3 和 `curl`）：
 
 ```sh
-curl -fL https://github.com/gaosboy/oura-for-agent/releases/download/v1.0.1/data-from-oura-1.0.1.zip -o /tmp/data-from-oura-1.0.1.zip && python3 ops/skill/upgrade.py /tmp/data-from-oura-1.0.1.zip
+upgrade_dir=$(mktemp -d) && curl -fL https://raw.githubusercontent.com/gaosboy/oura-for-agent/d1b79c5/ops/skill/upgrade.py -o "$upgrade_dir/upgrade.py" && curl -fL https://github.com/gaosboy/oura-for-agent/releases/download/v1.0.1/data-from-oura-1.0.1.zip -o "$upgrade_dir/skill.zip" && python3 "$upgrade_dir/upgrade.py" "$upgrade_dir/skill.zip"
 ```
 
-升级到后续版本时，请按 [GitHub Releases](https://github.com/gaosboy/oura-for-agent/releases) 中的版本，替换 URL 和文件名中的 `v1.0.1` / `1.0.1`。工具会先在已安装 Skill 目录旁备份整个目录，再更新发布文件，保留私有配置和本地文件。工具会显示备份路径；验证升级成功前请保留备份。外部数据目录和系统密钥库密钥不会被移动或删除。如果使用 Claude Code、Hermes 或 OpenClaw，通过 `--skill-dir` 指定已安装的 `data-from-oura` 目录。升级后重启智能体；运行器会在需要时初始化依赖。升级失败时，请先从显示的备份目录恢复，再重试。
+升级到后续版本时，请按 [GitHub Releases](https://github.com/gaosboy/oura-for-agent/releases) 中的版本，替换发布包 URL 中的 `v1.0.1` / `1.0.1`。工具会先在已安装 Skill 目录旁备份整个目录，再更新发布文件，保留私有配置和本地文件。工具会显示备份路径；验证升级成功前请保留备份。外部数据目录和系统密钥库密钥不会被移动或删除。如果使用 Claude Code、Hermes 或 OpenClaw，在命令末尾添加 `--skill-dir` 和已安装的 `data-from-oura` 目录。升级后重启智能体；运行器会在需要时初始化依赖。升级失败时，请先从显示的备份目录恢复，再重试。
 
 ## 使用 Data from Oura
 
