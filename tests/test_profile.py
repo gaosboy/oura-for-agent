@@ -1,10 +1,10 @@
 import tempfile
 import unittest
 from pathlib import Path
-from oura_app.core.account.setup import initialize
-from oura_app.core.account.login import save_authorization
-from oura_app.core.account.profile import current_profile, activate, list_profiles
-from oura_app.core.record.access import record_path
+from core.core.account.setup import initialize
+from core.core.account.login import save_authorization
+from core.core.account.profile import current_profile, activate, list_profiles
+from core.core.record.access import record_path
 
 class ProfileTests(unittest.TestCase):
     def test_multiple_accounts_one_active_and_switch(self):

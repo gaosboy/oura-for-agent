@@ -2,7 +2,7 @@ import threading
 import unittest
 import urllib.error
 import urllib.request
-from oura_app.core.account.callback import CallbackServer
+from core.core.account.callback import CallbackServer
 
 class CallbackTests(unittest.TestCase):
     def test_idle_browser_connection_does_not_block_callback_or_shutdown(self):
@@ -64,7 +64,7 @@ class CallbackTests(unittest.TestCase):
                 server.wait(timeout=0.01)
 
     def test_replaces_owned_listener_and_releases_port(self):
-        from oura_app.core.account.callback import CallbackServer as AccountCallback
+        from core.core.account.callback import CallbackServer as AccountCallback
         first = AccountCallback('http://localhost:0/callback', 'a')
         port = first.server.server_address[1]
         second = AccountCallback(f'http://localhost:{port}/callback', 'b')

@@ -1,17 +1,17 @@
 import time
 import unittest
-from oura_app.common.deadline import run_with_deadline
+from core.common.deadline import run_with_deadline
 
 class DeadlineTests(unittest.TestCase):
     def test_login_allows_authorization_taking_more_than_thirty_seconds(self):
         from unittest.mock import patch
-        from oura_app.core.account.login import LoginSession
+        from core.core.account.login import LoginSession
         clock = [100.0]
-        with patch('oura_app.core.account.login.CallbackServer') as callback, \
-             patch('oura_app.core.account.login.time.monotonic', side_effect=lambda: clock[0]), \
-             patch('oura_app.core.account.login.exchange', return_value={'access_token': 'fake'}), \
-             patch('oura_app.core.account.login.personal_id', return_value='test-user'), \
-             patch('oura_app.core.account.login.save_authorization', return_value='test-account') as save:
+        with patch('core.core.account.login.CallbackServer') as callback, \
+             patch('core.core.account.login.time.monotonic', side_effect=lambda: clock[0]), \
+             patch('core.core.account.login.exchange', return_value={'access_token': 'fake'}), \
+             patch('core.core.account.login.personal_id', return_value='test-user'), \
+             patch('core.core.account.login.save_authorization', return_value='test-account') as save:
             def authorize(timeout):
                 clock[0] += 45
                 return 'code'
@@ -36,8 +36,8 @@ class DeadlineTests(unittest.TestCase):
         import sqlite3
         import tempfile
         from pathlib import Path
-        from oura_app.core.account.setup import initialize
-        from oura_app.core.account.login import save_authorization
+        from core.core.account.setup import initialize
+        from core.core.account.login import save_authorization
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             initialize(root)

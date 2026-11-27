@@ -1,7 +1,7 @@
 import tempfile
 import unittest
 from pathlib import Path
-from oura_app.config import load_config
+from core.config import load_config
 
 class ConfigTests(unittest.TestCase):
     def test_redirect_is_fixed_without_user_configuration(self):
@@ -31,7 +31,7 @@ class ConfigTests(unittest.TestCase):
 
 class LocalCompletionTests(unittest.TestCase):
     def test_saved_values_fill_missing_selected_environment(self):
-        from oura_app.config import save_local
+        from core.config import save_local
         with tempfile.TemporaryDirectory() as d:
             root = Path(d)
             (root / '.env.prod').write_text('OURA_CLIENT_ID=production\n')
@@ -43,7 +43,7 @@ class LocalCompletionTests(unittest.TestCase):
 
 class DataDirectoryTests(unittest.TestCase):
     def test_storage_directory_resolution(self):
-        from oura_app.common.storage import resolve_data_dir
+        from core.common.storage import resolve_data_dir
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             (root / '.env.local').write_text('OURA_DATA_DIR=data\n')
@@ -55,7 +55,7 @@ class DataDirectoryTests(unittest.TestCase):
 
 class LoggingConfigTests(unittest.TestCase):
     def test_log_level_from_file_and_environment(self):
-        from oura_app.config import log_level
+        from core.config import log_level
         with tempfile.TemporaryDirectory() as d:
             root = Path(d)
             (root / '.env.local').write_text('OURA_LOG_LEVEL=info\n')

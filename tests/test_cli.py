@@ -5,8 +5,8 @@ import unittest
 from contextlib import redirect_stdout
 from pathlib import Path
 from unittest.mock import patch, MagicMock
-from oura_app.action.cli.main import main
-from oura_app.config import load_config
+from core.action.cli.main import main
+from core.config import load_config
 
 class CliTests(unittest.TestCase):
     def test_login_guides_credentials_and_uses_fixed_redirect_without_prompt(self):
@@ -32,13 +32,13 @@ class CliTests(unittest.TestCase):
                 session.url = 'https://example.com/authorize'
                 session.complete.return_value = 'test-account'
                 with patch('sys.argv', ['oura', '--data-dir', str(root / 'data'), '--login']), \
-                     patch('oura_app.action.operations.ROOT', root), \
-                     patch('oura_app.action.operations.load_config', side_effect=lambda: load_config(root, {})), \
+                     patch('core.action.operations.ROOT', root), \
+                     patch('core.action.operations.load_config', side_effect=lambda: load_config(root, {})), \
                      patch('builtins.input', side_effect=enter_client) as client_input, \
-                     patch('oura_app.action.cli.main.getpass.getpass', side_effect=enter_secret) as secret_input, \
+                     patch('core.action.cli.main.getpass.getpass', side_effect=enter_secret) as secret_input, \
                      patch('time.sleep'), \
-                     patch('oura_app.action.cli.main.webbrowser.open'), \
-                     patch('oura_app.action.operations.Application.login', return_value=session) as login, \
+                     patch('core.action.cli.main.webbrowser.open'), \
+                     patch('core.action.operations.Application.login', return_value=session) as login, \
                      redirect_stdout(out):
                     self.assertEqual(main(), 0)
                 self.assertEqual(client_input.call_count, int('OURA_CLIENT_ID' not in existing))
@@ -77,9 +77,9 @@ class CliTests(unittest.TestCase):
             events.append(seconds)
 
         with patch('sys.argv', ['oura', '--login']), \
-             patch('oura_app.action.cli.main.Application', return_value=app), \
+             patch('core.action.cli.main.Application', return_value=app), \
              patch('time.sleep', side_effect=sleep), \
-             patch('oura_app.action.cli.main.webbrowser.open', side_effect=open_browser), \
+             patch('core.action.cli.main.webbrowser.open', side_effect=open_browser), \
              redirect_stdout(out):
             self.assertEqual(main(), 0)
         self.assertEqual(events, [1, 1, 1, 'open', 1, 1, 1, 1, 1])
@@ -107,8 +107,8 @@ class CliTests(unittest.TestCase):
                     os.environ['NO_COLOR'] = ''
                 out = io.StringIO()
                 with patch('sys.argv', ['oura', '--login']), \
-                     patch('oura_app.action.cli.main.Application', return_value=app), \
-                     patch('time.sleep'), patch('oura_app.action.cli.main.webbrowser.open'), \
+                     patch('core.action.cli.main.Application', return_value=app), \
+                     patch('time.sleep'), patch('core.action.cli.main.webbrowser.open'), \
                      patch.object(out, 'isatty', return_value=tty), redirect_stdout(out):
                     self.assertEqual(main(), 0)
                 output = out.getvalue()
@@ -126,16 +126,16 @@ class CliTests(unittest.TestCase):
         app.login.return_value.complete.side_effect = TimeoutError
         from contextlib import redirect_stderr
         with patch('sys.argv', ['oura', '--login']), \
-             patch('oura_app.action.cli.main.Application', return_value=app), \
+             patch('core.action.cli.main.Application', return_value=app), \
              patch('time.sleep') as sleep, \
-             patch('oura_app.action.cli.main.webbrowser.open'), \
+             patch('core.action.cli.main.webbrowser.open'), \
              redirect_stdout(io.StringIO()), redirect_stderr(io.StringIO()) as error:
             self.assertEqual(main(), 1)
         self.assertIn('60', error.getvalue())
         self.assertEqual(sleep.call_count, 3)
 
     def run_cli(self, args, app):
-        with patch('sys.argv', ['oura'] + args), patch('oura_app.action.cli.main.Application', return_value=app), redirect_stdout(io.StringIO()) as out:
+        with patch('sys.argv', ['oura'] + args), patch('core.action.cli.main.Application', return_value=app), redirect_stdout(io.StringIO()) as out:
             code = main()
         return code, json.loads(out.getvalue())
 

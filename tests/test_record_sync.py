@@ -1,10 +1,10 @@
 import tempfile
 import unittest
 from pathlib import Path
-from oura_app.core.account.setup import initialize
-from oura_app.core.account.login import save_authorization
-from oura_app.core.record.sync import sync_range, sync_incremental
-from oura_app.core.record.query import read_records
+from core.core.account.setup import initialize
+from core.core.account.login import save_authorization
+from core.core.record.sync import sync_range, sync_incremental
+from core.core.record.query import read_records
 
 class RecordSyncTests(unittest.TestCase):
  def test_remote_update_pagination_and_query(self):
@@ -46,21 +46,21 @@ class RecordSyncTests(unittest.TestCase):
 
  def test_pagination_and_token_cycles(self):
   from unittest.mock import patch
-  from oura_app.link.oura_v2.api import collection
+  from core.link.oura_v2.api import collection
   pages=[{'data':[{'id':'a'}],'next_token':'next'}, {'data':[{'id':'b'}],'next_token':None}]
-  with patch('oura_app.link.oura_v2.api.request_json',side_effect=pages):
+  with patch('core.link.oura_v2.api.request_json',side_effect=pages):
    self.assertEqual([x['id'] for x in collection('sleep','2026-01-01','2026-01-02','x')], ['a','b'])
-  with patch('oura_app.link.oura_v2.api.request_json',return_value={'data':[],'next_token':'same'}):
+  with patch('core.link.oura_v2.api.request_json',return_value={'data':[],'next_token':'same'}):
    with self.assertRaises(ValueError): list(collection('sleep','2026-01-01','2026-01-02','x'))
 
  def test_time_series_requests_are_split_into_21_day_windows(self):
   from unittest.mock import patch
   from urllib.parse import urlsplit, parse_qs
-  from oura_app.link.oura_v2.api import collection
+  from core.link.oura_v2.api import collection
   urls=[]
   def fake(url, token):
    urls.append(url); return {'data': [], 'next_token':None}
-  with patch('oura_app.link.oura_v2.api.request_json', side_effect=fake):
+  with patch('core.link.oura_v2.api.request_json', side_effect=fake):
    list(collection('heartrate','2026-10-01','2026-10-31','x','datetime'))
   self.assertEqual(len(urls),2)
   first,second=[parse_qs(urlsplit(url).query) for url in urls]
@@ -71,11 +71,11 @@ class RecordSyncTests(unittest.TestCase):
  def test_date_windows_are_inclusive_and_sequential(self):
   from unittest.mock import patch
   from urllib.parse import urlsplit, parse_qs
-  from oura_app.link.oura_v2.api import collection
+  from core.link.oura_v2.api import collection
   urls=[]
   def fake(url, token):
    urls.append(parse_qs(urlsplit(url).query)); return {'data': [], 'next_token':None}
-  with patch('oura_app.link.oura_v2.api.request_json', side_effect=fake):
+  with patch('core.link.oura_v2.api.request_json', side_effect=fake):
    list(collection('daily_sleep','2026-01-01','2026-02-12','x','date'))
   self.assertEqual([(x['start_date'][0],x['end_date'][0]) for x in urls], [('2026-01-01','2026-01-21'),('2026-01-22','2026-02-11'),('2026-02-12','2026-02-12')])
 
@@ -91,9 +91,9 @@ class RecordSyncTests(unittest.TestCase):
 
  def test_debug_logging_window_and_page_omits_token(self):
   from unittest.mock import patch
-  from oura_app.link.oura_v2.api import collection
-  with patch('oura_app.link.oura_v2.api.request_json',return_value={'data':[],'next_token':None}):
-   with self.assertLogs('oura_app.link.oura_v2.api', level='DEBUG') as logs:
+  from core.link.oura_v2.api import collection
+  with patch('core.link.oura_v2.api.request_json',return_value={'data':[],'next_token':None}):
+   with self.assertLogs('core.link.oura_v2.api', level='DEBUG') as logs:
     list(collection('heartrate','2026-10-01','2026-10-22','very-secret','datetime'))
   self.assertGreaterEqual(len(logs.output),4)
   self.assertNotIn('very-secret', ' '.join(logs.output))

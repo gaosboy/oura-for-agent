@@ -6,12 +6,12 @@
 
 ## 目录和调用
 
-- `oura_app/action/operations/report.py`：报告生成操作及结果，CLI 仅调用操作层。
-- `oura_app/core/record/`：提供适合报告的完整数据读取，不能依赖当前默认 1000 条的截断结果；采用分页读取或明确检测截断。
-- `oura_app/resource/report_templates/`：随应用分发的报告模板及其版本资源。
+- `core/action/operations/report.py`：报告生成操作及结果，CLI 仅调用操作层。
+- `core/core/record/`：提供适合报告的完整数据读取，不能依赖当前默认 1000 条的截断结果；采用分页读取或明确检测截断。
+- `core/resource/report_templates/`：随应用分发的报告模板及其版本资源。
 - `<数据目录的父目录>/reports/`：报告产物；报告目录以私有权限创建，项目根目录下的报告由 `.gitignore` 保护，不纳入版本库。模板与产物目录分开。
 
-操作接口建议 `generate_report(report_type, start, end, force=False)`，使用当前激活账号。CLI 建议 `python -m oura_app.action report activity-trend --start YYYY-MM-DD --end YYYY-MM-DD [--force]`，以 JSON 返回文件路径和是否复用缓存。日期均为包含起止日的业务日期；参数无效或没有激活账号时明确报错。
+操作接口建议 `generate_report(report_type, start, end, force=False)`，使用当前激活账号。CLI 建议 `python -m core.action report activity-trend --start YYYY-MM-DD --end YYYY-MM-DD [--force]`，以 JSON 返回文件路径和是否复用缓存。日期均为包含起止日的业务日期；参数无效或没有激活账号时明确报错。
 
 ## 缓存与文件安全
 

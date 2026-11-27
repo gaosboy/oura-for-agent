@@ -2,7 +2,7 @@ import ast
 import tempfile
 import unittest
 from pathlib import Path
-from oura_app.action.operations import Application
+from core.action.operations import Application
 
 class ArchitectureTests(unittest.TestCase):
     def test_initialize_via_operations(self):
@@ -13,7 +13,7 @@ class ArchitectureTests(unittest.TestCase):
             self.assertEqual(app.initialize(), path)
 
     def test_cli_only_imports_operations_from_application(self):
-        source = Path('oura_app/action/cli/main.py').read_text()
+        source = Path('core/action/cli/main.py').read_text()
         tree = ast.parse(source)
         for node in ast.walk(tree):
             if isinstance(node, ast.ImportFrom) and node.level:
@@ -22,7 +22,7 @@ class ArchitectureTests(unittest.TestCase):
     def test_login_operation_preserves_credentials_and_reuses_account(self):
         from unittest.mock import patch
         import sqlite3
-        from oura_app.core.account.login import LoginSession
+        from core.core.account.login import LoginSession
         class Callback:
             def __init__(self, redirect, state): pass
             def __enter__(self): return self
@@ -33,10 +33,10 @@ class ArchitectureTests(unittest.TestCase):
             app = Application(root)
             app.initialize()
             token = {'access_token': 'fake', 'token_type': 'bearer'}
-            with patch('oura_app.core.account.login.CallbackServer', Callback), \
-                 patch('oura_app.core.account.login.authorization', return_value=('url', 'state', 'verifier')), \
-                 patch('oura_app.core.account.login.exchange', return_value=token), \
-                 patch('oura_app.core.account.login.personal_id', return_value='user'):
+            with patch('core.core.account.login.CallbackServer', Callback), \
+                 patch('core.core.account.login.authorization', return_value=('url', 'state', 'verifier')), \
+                 patch('core.core.account.login.exchange', return_value=token), \
+                 patch('core.core.account.login.personal_id', return_value='user'):
                 with LoginSession(root, 'client', 'secret', 'http://localhost:1234/cb', lambda s: ('enc:' + s).encode()) as session:
                     first = session.complete()
                 with LoginSession(root, 'client', 'secret', 'http://localhost:1234/cb', lambda s: ('enc:' + s).encode()) as session:
@@ -46,9 +46,9 @@ class ArchitectureTests(unittest.TestCase):
                 self.assertEqual(db.execute('select access_token_ciphertext from credentials').fetchone()[0], b'enc:fake')
 
     def test_business_models_inherit_generic_data_object(self):
-        from oura_app.common.storage import DataObject
-        from oura_app.core.account.model import AccountData, CredentialData
-        from oura_app.core.record.model import RecordIdentity
+        from core.common.storage import DataObject
+        from core.core.account.model import AccountData, CredentialData
+        from core.core.record.model import RecordIdentity
         self.assertTrue(issubclass(AccountData, DataObject))
         self.assertTrue(issubclass(CredentialData, DataObject))
         self.assertTrue(issubclass(RecordIdentity, DataObject))

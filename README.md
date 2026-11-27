@@ -10,18 +10,18 @@
 
 ## 代码结构
 
-- `oura_app/action/operations/`：统一应用操作；`action/cli/` 负责命令行交互。
-- `oura_app/core/account/`、`core/record/`：账号授权与本地记录业务。
-- `oura_app/link/oura_v2/`：Oura API；本地 OAuth 回调由 `core/account/` 管理。
-- `oura_app/common/`：通用数据对象、存储、加密及超时工具；业务数据对象定义在各自的 Core 模块；`oura_app/config/`：独立环境配置。
-- `oura_app/resource/migrations/`：认证库和记录库各自的初始 SQL。
+- `core/action/operations/`：统一应用操作；`action/cli/` 负责命令行交互。
+- `core/core/account/`、`core/record/`：账号授权与本地记录业务。
+- `core/link/oura_v2/`：Oura API；本地 OAuth 回调由 `core/account/` 管理。
+- `core/common/`：通用数据对象、存储、加密及超时工具；业务数据对象定义在各自的 Core 模块；`core/config/`：独立环境配置。
+- `core/resource/migrations/`：认证库和记录库各自的初始 SQL。
 
 ## 初始化
 
 需要 Python 3。初始化认证数据库：
 
 ```sh
-python3 -m oura_app.action
+python3 -m core.action
 ```
 
 使用 `OURA_DATA_DIR` 配置数据目录，相对路径以项目根目录为基准；未配置时默认使用 `~/.local/share/data-from-oura/`。`--data-dir PATH` 优先于配置。重复运行不会清空数据。认证数据库初始化不需要登录或安装第三方依赖。
@@ -34,7 +34,7 @@ python3 -m oura_app.action
 python3 -m venv .venv
 . .venv/bin/activate
 pip install -r requirements.txt
-python3 -m oura_app.action --login
+python3 -m core.action --login
 ```
 
 登录分为准备应用凭据、浏览器授权和保存账号三个步骤。输入应用的 client ID 和 client secret；也可分别通过 `OURA_CLIENT_ID`、`OURA_CLIENT_SECRET` 环境变量提供。终端会提示开发者平台链接，secret 输入时不显示。回调地址固定为 `http://localhost:8765/callback`，由程序自动配置并显示，无需输入；请在 Oura 应用后台登记相同地址。
@@ -62,7 +62,7 @@ python3 -m oura_app.action --login
 通过统一操作接口调用。应用可保存多个授权，登录成功后激活该账号；可使用 `app.list_profiles()` 和 `app.activate_account(account_id)` 查看及切换。同步和读取只能访问当前激活账号：
 
 ```python
-from oura_app.action.operations import Application
+from core.action.operations import Application
 
 app = Application()
 account_id = app.current_profile()['account_id']
@@ -81,11 +81,11 @@ rows = app.read_records(account_id, kinds=['daily_sleep'], start='2026-01-01', e
 ## 命令行同步与读取
 
 ```sh
-python3 -m oura_app.action profile
-python3 -m oura_app.action sync range --start 2026-01-01 --end 2026-01-31 --types daily_sleep heartrate
-python3 -m oura_app.action sync full --start 2026-01-01
-python3 -m oura_app.action sync incremental --types daily_sleep heartrate
-python3 -m oura_app.action read --types daily_sleep --start 2026-01-01 --end 2026-01-31 --limit 10
+python3 -m core.action profile
+python3 -m core.action sync range --start 2026-01-01 --end 2026-01-31 --types daily_sleep heartrate
+python3 -m core.action sync full --start 2026-01-01
+python3 -m core.action sync incremental --types daily_sleep heartrate
+python3 -m core.action read --types daily_sleep --start 2026-01-01 --end 2026-01-31 --limit 10
 ```
 
 命令使用当前激活账号，读取结果包含健康数据，请勿公开分享。同步日志等级由 `OURA_LOG_LEVEL` 设置，支持 DEBUG、INFO、WARNING、ERROR、CRITICAL；未配置时为 DEBUG。窗口和分页进度为 DEBUG，输出到标准错误；JSON 结果仍写入标准输出。增量同步需要各所选项目有成功的历史同步。同步返回 JSON；部分失败或全部失败时退出码为 1。
@@ -93,9 +93,9 @@ python3 -m oura_app.action read --types daily_sleep --start 2026-01-01 --end 202
 ## 本地运动趋势报告
 
 ```sh
-python3 -m oura_app.action report activity-trend --start 2026-10-01 --end 2026-10-31
+python3 -m core.action report activity-trend --start 2026-10-01 --end 2026-10-31
 # 同步新数据后，强制重新生成同一份报告
-python3 -m oura_app.action report activity-trend --start 2026-10-01 --end 2026-10-31 --force
+python3 -m core.action report activity-trend --start 2026-10-01 --end 2026-10-31 --force
 ```
 
 报告使用当前账号已同步的 `daily_activity` 和 `workout`，不会自动同步。文件保存在数据库目录的同级 `reports/`（默认本地配置为项目根目录的 `reports/`），是可离线打开的 HTML；命令返回路径和缓存状态。相同账号、日期和模板默认复用旧文件，数据或模板变化后需使用 `--force`。报告包含个人健康数据，请妥善保管。

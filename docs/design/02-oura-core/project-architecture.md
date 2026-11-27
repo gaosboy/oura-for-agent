@@ -9,7 +9,7 @@
 ## 目标目录
 
 ```text
-oura_app/
+core/
 ├── action/
 │   ├── operations/          # 应用操作，供各种入口统一调用
 │   ├── cli/                 # 命令行协议、交互和呈现
@@ -75,7 +75,7 @@ Link 将上游协议和 HTTP 失败转为可识别的错误；Core 表达账号�
 
 | 当前能力 | 目标位置 | 迁移要求 |
 | --- | --- | --- |
-| `action/__main__.py` | `action/cli/` + `action/operations/` + Core | 将交互、应用操作和业务拆开；保留 `python -m oura_app.action` 兼容入口 |
+| `action/__main__.py` | `action/cli/` + `action/operations/` + Core | 将交互、应用操作和业务拆开；保留 `python -m core.action` 兼容入口 |
 | `action/deadline.py` | 依据使用场景放在登录操作或 `common/` | 保留现有超时与不接受迟到结果的行为；通用化以实际需要为准 |
 | `link/oura_v2/api.py`、`core/account/callback.py` | `link/oura_v2/`、`core/account/` | 保留 OAuth、回调和 API 行为，按职责拆分 |
 | `core/database.py`、`core/security.py` | `core/account/`、`core/record/` 与 `common/` | 区分业务、存储和密钥库适配；保留现有数据库和加密密钥可读性 |

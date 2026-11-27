@@ -21,7 +21,7 @@ class SkillBuildTests(unittest.TestCase):
             with zipfile.ZipFile(archive) as z:
                 names = z.namelist()
                 self.assertIn('data-from-oura/SKILL.md', names)
-                self.assertIn('data-from-oura/oura_app/resource/migrations/auth/001.sql', names)
+                self.assertIn('data-from-oura/core/resource/migrations/auth/001.sql', names)
                 self.assertFalse(any('__pycache__' in n or '/tests/' in n or '/docs/' in n or '.env' in n for n in names))
             check = subprocess.run(cmd + ['--check-version'], capture_output=True, text=True)
             self.assertEqual(check.returncode, 0, check.stderr)
@@ -36,7 +36,7 @@ class SkillBuildTests(unittest.TestCase):
             env = dict(os.environ, OURA_DATA_DIR=str(Path(tmp) / 'data'))
             for key in ('OURA_ENV', 'OURA_CLIENT_ID', 'OURA_CLIENT_SECRET', 'OURA_REDIRECT_URI'):
                 env.pop(key, None)
-            result = subprocess.run([sys.executable, '-m', 'oura_app.action'], cwd=skill, env=env, capture_output=True, text=True)
+            result = subprocess.run([sys.executable, '-m', 'core.action'], cwd=skill, env=env, capture_output=True, text=True)
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertIn('Authentication database ready', result.stdout)
             self.assertTrue(list((Path(tmp) / 'data').glob('*.sqlite3')))

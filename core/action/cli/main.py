@@ -55,7 +55,7 @@ def main():
         parser.error('--login cannot be combined with a command')
     try:
         app = Application(args.data_dir)
-        logger = logging.getLogger('oura_app')
+        logger = logging.getLogger('core')
         if not any(getattr(handler, '_oura_cli', False) for handler in logger.handlers):
             handler = logging.StreamHandler(sys.stderr)
             handler.setFormatter(logging.Formatter('%(levelname)s %(message)s'))
@@ -83,7 +83,7 @@ def main():
             return 1 if args.command == 'sync' and result['status'] != 'succeeded' else 0
         print(styled('Authentication database ready:', 'success'), app.initialize())
         if not args.login:
-            print(styled('初始化完成。', 'success') + '连接 Oura 账号请运行：python3 -m oura_app.action --login')
+            print(styled('初始化完成。', 'success') + '连接 Oura 账号请运行：python3 -m core.action --login')
             return 0
         selected, config = app.configuration()
         print(styled('\n[1/3] 准备 Oura 应用凭据', 'heading'))
@@ -136,10 +136,10 @@ def main():
             print(styled('回调服务已关闭。', 'success'), flush=True)
         return 0
     except TimeoutError:
-        print(styled('登录超过 60 秒，尚未完成。请重新运行 python3 -m oura_app.action --login。', 'error', sys.stderr), file=sys.stderr)
+        print(styled('登录超过 60 秒，尚未完成。请重新运行 python3 -m core.action --login。', 'error', sys.stderr), file=sys.stderr)
         return 1
     except KeyboardInterrupt:
-        print(styled('\n已取消登录，可重新运行 python3 -m oura_app.action --login。', 'warning', sys.stderr), file=sys.stderr)
+        print(styled('\n已取消登录，可重新运行 python3 -m core.action --login。', 'warning', sys.stderr), file=sys.stderr)
         return 130
     except (ValueError, RuntimeError, OSError, KeyError) as error:
         message = str(error) if isinstance(error, (ValueError, RuntimeError)) else type(error).__name__

@@ -24,7 +24,7 @@ def setup():
         subprocess.run([str(PYTHON), '-m', 'pip', 'install', '-r', str(requirements)], check=True)
         MARKER.write_text(digest)
     print('Initializing local authentication database...', flush=True)
-    subprocess.run([str(PYTHON), '-m', 'oura_app.action'], cwd=ROOT, check=True)
+    subprocess.run([str(PYTHON), '-m', 'core.action'], cwd=ROOT, check=True)
 
 
 if __name__ == '__main__':

@@ -4,7 +4,7 @@
 
 Data from Oura 是面向智能体的应用：通过 Oura 开放 API 获取并维护用户可访问的健康数据，保存到本地数据库，供分析和调用。目标覆盖所有可用数据类型；实际访问受用户授权、API 能力和平台限制约束。
 
-`docs/` 包含 Oura API 文档；线上文档为 https://cloud.ouraring.com/v2/docs。实现接口时查阅文档，并在需要确认最新平台要求时核对线上文档。应用代码位于 `oura_app/`：`link/oura_v2/` 对接 Oura，`core/account/` 与 `core/record/` 管理业务，`action/operations/` 提供统一操作，`action/cli/` 提供命令行入口；配置位于独立的 `config/`。测试位于 `tests/`。
+`docs/` 包含 Oura API 文档；线上文档为 https://cloud.ouraring.com/v2/docs。实现接口时查阅文档，并在需要确认最新平台要求时核对线上文档。应用代码位于 `core/`：`link/oura_v2/` 对接 Oura，`core/account/` 与 `core/record/` 管理业务，`action/operations/` 提供统一操作，`action/cli/` 提供命令行入口；配置位于独立的 `config/`。测试位于 `tests/`。
 
 ## 架构与模块组织
 
@@ -32,13 +32,13 @@ Data from Oura 是面向智能体的应用：通过 Oura 开放 API 获取并维
 
 ```sh
 python3 -m unittest discover -s tests
-python3 -m oura_app.action --help
+python3 -m core.action --help
 python3 -m json.tool docs/openapi-1.43.json > /dev/null
 ```
 
 测试只用合成数据、平台替身和临时目录；真实 Oura 授权或同步须另行取得用户授权。当前未实现令牌自动刷新，平台分页、增量回查和删除边界以使用说明为准。
 
-使用 `python3 -m oura_app.action` 初始化认证库；`--login` 可选地授权账号（登录依赖 `pip install -r requirements.txt`）。使用 `python3 scripts/export_openapi.py` 将规范导出到 `docs/oura-api/`；运行 `python3 -m unittest discover -s tests` 验证应用、Skill 构建和导出脚本。修改 API 文档源文件时，应检查 JSON 语法，并在有 OpenAPI 3.1 校验工具时检查语义和引用。保留规范的两空格缩进及既有命名，避免无关的全文件格式化。新增代码时提供相应测试，覆盖映射、授权、同步和错误处理，并在此记录实际安装、运行和测试命令。
+使用 `python3 -m core.action` 初始化认证库；`--login` 可选地授权账号（登录依赖 `pip install -r requirements.txt`）。使用 `python3 scripts/export_openapi.py` 将规范导出到 `docs/oura-api/`；运行 `python3 -m unittest discover -s tests` 验证应用、Skill 构建和导出脚本。修改 API 文档源文件时，应检查 JSON 语法，并在有 OpenAPI 3.1 校验工具时检查语义和引用。保留规范的两空格缩进及既有命名，避免无关的全文件格式化。新增代码时提供相应测试，覆盖映射、授权、同步和错误处理，并在此记录实际安装、运行和测试命令。
 
 登录会展示授权 URL，倒计时 3 秒尝试打开浏览器，随后允许 60 秒完成授权和账号保存；浏览器未打开时可手动访问该 URL。回调页面收到有效授权后倒计时 3 秒尝试关闭；账号保存成功后回调服务倒计时 5 秒自动关闭，期间保持响应。交互终端支持颜色高亮，重定向或设置 `NO_COLOR` 时使用纯文本。运行 `python3 -m unittest discover -s tests` 验证授权超时、回调持续响应、关闭倒计时、引导交互和颜色兼容及其他回归测试。
 

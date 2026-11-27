@@ -9,7 +9,7 @@ try:
     digest = hashlib.sha256((ROOT / 'requirements.txt').read_bytes()).hexdigest()
     if not PYTHON.is_file() or not MARKER.is_file() or MARKER.read_text() != digest:
         setup()
-    result = subprocess.run([str(PYTHON), '-m', 'oura_app.action', *sys.argv[1:]], cwd=ROOT)
+    result = subprocess.run([str(PYTHON), '-m', 'core.action', *sys.argv[1:]], cwd=ROOT)
     sys.exit(result.returncode)
 except (OSError, subprocess.CalledProcessError, ValueError) as exc:
     print(f'Unable to run application: {exc}. Run python3 scripts/setup.py in a terminal.', file=sys.stderr)

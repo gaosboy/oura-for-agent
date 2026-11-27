@@ -3,19 +3,19 @@ import tempfile
 import unittest
 from pathlib import Path
 from unittest.mock import patch
-from oura_app.core.account.setup import initialize
-from oura_app.core.account.login import save_authorization
-from oura_app.link.oura_v2.api import validate_callback
+from core.core.account.setup import initialize
+from core.core.account.login import save_authorization
+from core.link.oura_v2.api import validate_callback
 
 class InitTests(unittest.TestCase):
     def test_successful_login_keeps_serving_until_session_exits(self):
         import urllib.request
-        from oura_app.core.account.login import LoginSession
+        from core.core.account.login import LoginSession
         with tempfile.TemporaryDirectory() as d:
             root = Path(d)
             initialize(root)
-            with patch('oura_app.core.account.login.exchange', return_value={'access_token': 'fake'}), \
-                 patch('oura_app.core.account.login.personal_id', return_value='test-user'):
+            with patch('core.core.account.login.exchange', return_value={'access_token': 'fake'}), \
+                 patch('core.core.account.login.personal_id', return_value='test-user'):
                 with LoginSession(root, 'client', 'secret', 'http://localhost:0/callback', lambda s: s.encode()) as session:
                     from urllib.parse import parse_qs, urlsplit
                     state = parse_qs(urlsplit(session.url).query)['state'][0]

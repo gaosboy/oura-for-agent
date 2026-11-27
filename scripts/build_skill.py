@@ -46,8 +46,8 @@ def main():
     with tempfile.TemporaryDirectory(dir=output) as tmp:
         stage = Path(tmp) / name
         stage.mkdir()
-        for source in (ROOT / 'oura_app').rglob('*'):
-            if source.is_file() and '__pycache__' not in source.parts and (source.suffix == '.py' or ('resource' in source.relative_to(ROOT / 'oura_app').parts and source.suffix in ('.sql', '.html'))):
+        for source in (ROOT / 'core').rglob('*'):
+            if source.is_file() and '__pycache__' not in source.parts and (source.suffix == '.py' or ('resource' in source.relative_to(ROOT / 'core').parts and source.suffix in ('.sql', '.html'))):
                 target = stage / source.relative_to(ROOT)
                 target.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copy2(source, target)
