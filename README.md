@@ -18,13 +18,13 @@ For Claude Code, Hermes, or OpenClaw, replace both instances of `~/.codex/skills
 
 ### Upgrade
 
-Download the new ZIP from [GitHub Releases](https://github.com/gaosboy/oura-for-agent/releases), then run the upgrade helper from a clone of this repository (replace the ZIP path):
+From this repository’s root, run the following command to download the v1.0.1 release and upgrade a Codex installation (requires Python 3 and `curl`):
 
 ```sh
-python3 ops/skill/upgrade.py /path/to/data-from-oura-NEW_VERSION.zip
+curl -fL https://github.com/gaosboy/oura-for-agent/releases/download/v1.0.1/data-from-oura-1.0.1.zip -o /tmp/data-from-oura-1.0.1.zip && python3 ops/skill/upgrade.py /tmp/data-from-oura-1.0.1.zip
 ```
 
-The helper backs up the complete installed Skill directory next to it, then updates the release files while preserving private configuration and local files. It prints the backup path; keep that backup until you verify the upgrade. It does not move or delete external data directories or system keyring keys. For Claude Code, Hermes, or OpenClaw, pass `--skill-dir` followed by the installed `data-from-oura` path. Restart the agent after upgrading; the runner initializes dependencies when needed. If an upgrade fails, restore the printed backup directory before retrying.
+For a later release, replace both occurrences of `v1.0.1`/`1.0.1` in the URL and filename with the desired version from [GitHub Releases](https://github.com/gaosboy/oura-for-agent/releases). The helper backs up the complete installed Skill directory next to it, then updates the release files while preserving private configuration and local files. It prints the backup path; keep that backup until you verify the upgrade. It does not move or delete external data directories or system keyring keys. For Claude Code, Hermes, or OpenClaw, pass `--skill-dir` followed by the installed `data-from-oura` path. Restart the agent after upgrading; the runner initializes dependencies when needed. If an upgrade fails, restore the printed backup directory before retrying.
 
 ## Use Data from Oura
 
